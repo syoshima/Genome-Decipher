@@ -26,6 +26,7 @@ import re
 #from mpl_toolkits.mplot3d import proj3d
 from matplotlib.mlab import PCA as mlabPCA
 from sklearn.cluster import KMeans
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 # Capture and clean data
 fname = "ccrescentus.txt"
@@ -171,7 +172,7 @@ plt.scatter(T4t['PC1'], T4t['PC2'], c=y_kmeans4, s=10, cmap='viridis')
 centers4 = kmeans4.cluster_centers_
 plt.scatter(centers4[:, 0], centers4[:, 1], c='black', s=100, alpha=1);
 fig.savefig("KMeans_m4K7.png")
-
+"""
 fig=plt.figure(2)
 mlab_pca = mlabPCA(data3n)
 #print('PC axes in terms of the measurement axes scaled by the standard deviations:\n', mlab_pca.Wt)
@@ -181,15 +182,24 @@ plt.ylabel('y_values')
 plt.legend()
 plt.title('Transformed samples with class labels from matplotlib.mlab.PCA (m=3)')
 fig.savefig("PCA_m3mlab.png")
-
+"""
 fig=plt.figure(3)
+n_cl=7
 T3t =  pd.DataFrame(data = T3.T, columns = ['PC1', 'PC2'])
-kmeans3 = KMeans(n_clusters=7)
+kmeans3 = KMeans(n_clusters=n_cl, random_state=n_cl)
 kmeans3.fit(T3t)
 y_kmeans3 = kmeans3.predict(T3t)
-plt.scatter(T3t['PC1'], T3t['PC2'], c=y_kmeans3, s=10, cmap='viridis')
+cnames = ['k','r','g','b','m','c','y']
+newcmp = ListedColormap(cnames)
+labels = [i for i in range(0,n_cl)]
+plt.scatter(T3t['PC1'], T3t['PC2'], c=y_kmeans3, s=10, cmap=newcmp)
 centers3 = kmeans3.cluster_centers_
 plt.scatter(centers3[:, 0], centers3[:, 1], c='black', s=100, alpha=1);
+for label, x, y in zip(labels, centers3[:, 0], centers3[:, 1]):
+    plt.annotate(label,xy=(x, y),xytext=(-20, 20),
+        textcoords='offset points', ha='right', va='bottom',
+        bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
+        arrowprops=dict(arrowstyle = '->', connectionstyle='arc3,rad=0'))
 fig.savefig("KMeans_m3K7.png")   
 labels3 = kmeans3.labels_
 
@@ -199,9 +209,8 @@ print('Genetic material with relevant code information begins and ends with codo
 #Task list
 # Gen_Browser
 # we will show 100 fragments in the detailed view
-cnames = ['k','r','g','b','m','c','y']
 fig = plt.figure(4)
-n = 100
+n = 50
 plt.ylim(0,n)
 t = 0
 for i,cl in zip(data[0:n],labels3[0:n]):
@@ -222,8 +231,8 @@ for i,cl in zip(data[0:n],labels3[0:n]):
     t = t + 1        
 plt.show()
 fig.savefig("clustergene.png")
-
 """
+
 1) Find the correct cluster for informational genetic material, where the correct
 triplet distribution (probably) will contain the lowest frequency of the stop
 codons TAA, TAG and TGA, the specialized codons). Stop codon can appear only once
@@ -245,7 +254,7 @@ SCC3s = np.sum(SCC3)
 SCC4s = np.sum(SCC4)
 SCC5s = np.sum(SCC5)
 SCC6s = np.sum(SCC6)
-XCC = [0,1,2,3,4,5,6]
+XCC = [i for i in range(0,n_cl)]
 SCCx = [SCC0s, SCC1s, SCC2s, SCC3s, SCC4s, SCC5s, SCC6s]
 fig = plt.figure(5)
 plt.bar(XCC, SCCx, color=cnames)
@@ -253,7 +262,7 @@ plt.ylabel('Score fo stop codons (taa,tga,tag)')
 plt.xlabel('Clusters(labels)')
 plt.title('Correct Cluster Shift \n lowest frequency of stop codons')
 fig.savefig("clustercorrect.png")   
-
+"""
 SCC0x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 0]
 SCC1x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 1]
 SCC2x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 2]
@@ -268,7 +277,7 @@ SCC3sx = np.sum(SCC3x)
 SCC4sx = np.sum(SCC4x)
 SCC5sx = np.sum(SCC5x)
 SCC6sx = np.sum(SCC6x)
-XCC = [0,1,2,3,4,5,6]
+XCC = [i for i in range(0,n_cl)]
 SCCxx = [SCC0sx, SCC1sx, SCC2sx, SCC3sx, SCC4sx, SCC5sx, SCC6sx]
 fig = plt.figure(6)
 plt.bar(XCC, SCCxx, color=cnames)
@@ -278,7 +287,6 @@ plt.title('Correct Cluster Shift \n lowest frequency of stop codons')
 fig.savefig("clustercorrect1.png")   
 plt.show()
 
-"""
 2) Measure information content for every phase
 We can calculate the information value of this triplet
 distribution I(F) for each afragment F . Is the information of fragments in
@@ -330,14 +338,12 @@ IR3 = [i for i,cl in zip(IR,labels3) if cl == 3]
 IR4 = [i for i,cl in zip(IR,labels3) if cl == 4]
 IR5 = [i for i,cl in zip(IR,labels3) if cl == 5]
 IR6 = [i for i,cl in zip(IR,labels3) if cl == 6]
-IR0m = np.mean(IR0)
-IR1m = np.mean(IR1)
-IR2m = np.mean(IR2)
-IR3m = np.mean(IR3)
-IR4m = np.mean(IR4)
-IR5m = np.mean(IR5)
-IR6m = np.mean(IR6)
-IRm = [IR0m,IR1m,IR2m,IR3m,IR4m,IR5m,IR6m]
+
+IRm = [np.mean(IR0),np.mean(IR1),np.mean(IR2),np.mean(IR3),np.mean(IR4),np.mean(IR5),np.mean(IR6)]
+IRl = [len(IR0),len(IR1),len(IR2),len(IR3),len(IR4),len(IR5),len(IR6)]
+IRv = [np.var(IR0),np.var(IR1),np.var(IR2),np.var(IR3),np.var(IR4),np.var(IR5),np.var(IR6)]
+IRs = [np.std(IR0),np.std(IR1),np.std(IR2),np.std(IR3),np.std(IR4),np.std(IR5),np.std(IR6)]
+
 fig = plt.figure(7)
 plt.bar(XCC, IRm, color=cnames)
 plt.ylabel('Mean IR of each cluster \n (collection of fragments with same label)')
@@ -349,9 +355,6 @@ plt.show()
 
 # Hypothesis testing for significance of Information Ratio
 # (check variance of 4 first cluster in Info)
-IRl = [len(IR0),len(IR1),len(IR2),len(IR3),len(IR4),len(IR5),len(IR6)]
-IRv = [np.var(IR0),np.var(IR1),np.var(IR2),np.var(IR3),np.var(IR4),np.var(IR5),np.var(IR6)]
-IRs = [np.std(IR0),np.std(IR1),np.std(IR2),np.std(IR3),np.std(IR4),np.std(IR5),np.std(IR6)]
 Info = np.array([IRm,IRl,IRv,IRs])
 Info.sort(axis=1)
 CCCu = np.mean(Info[0,0:4])
