@@ -172,19 +172,8 @@ plt.scatter(T4t['PC1'], T4t['PC2'], c=y_kmeans4, s=10, cmap='viridis')
 centers4 = kmeans4.cluster_centers_
 plt.scatter(centers4[:, 0], centers4[:, 1], c='black', s=100, alpha=1);
 fig.savefig("KMeans_m4K7.png")
-"""
-fig=plt.figure(2)
-mlab_pca = mlabPCA(data3n)
-#print('PC axes in terms of the measurement axes scaled by the standard deviations:\n', mlab_pca.Wt)
-plt.plot(mlab_pca.Y[:,0],mlab_pca.Y[:,1], 'o', markersize=1, color='blue', alpha=0.5, label='class1')
-plt.xlabel('x_values')
-plt.ylabel('y_values')
-plt.legend()
-plt.title('Transformed samples with class labels from matplotlib.mlab.PCA (m=3)')
-fig.savefig("PCA_m3mlab.png")
-"""
 fig=plt.figure(3)
-n_cl=7
+
 T3t =  pd.DataFrame(data = T3.T, columns = ['PC1', 'PC2'])
 kmeans3 = KMeans(n_clusters=n_cl, random_state=n_cl)
 kmeans3.fit(T3t)
@@ -194,6 +183,7 @@ newcmp = ListedColormap(cnames)
 labels = [i for i in range(0,n_cl)]
 plt.scatter(T3t['PC1'], T3t['PC2'], c=y_kmeans3, s=10, cmap=newcmp)
 centers3 = kmeans3.cluster_centers_
+n_cl=len(centers3)
 plt.scatter(centers3[:, 0], centers3[:, 1], c='black', s=100, alpha=1);
 for label, x, y in zip(labels, centers3[:, 0], centers3[:, 1]):
     plt.annotate(label,xy=(x, y),xytext=(-20, 20),
@@ -205,11 +195,11 @@ labels3 = kmeans3.labels_
 
 print('The structure of 3 non-verlapping word letters confirm the relevance of codons.')
 print('Genetic material with relevant code information begins and ends with codons')
-
 #Task list
 # Gen_Browser
 # we will show 100 fragments in the detailed view
 fig = plt.figure(4)
+I = n_cl
 n = 50
 plt.ylim(0,n)
 t = 0
@@ -228,10 +218,13 @@ for i,cl in zip(data[0:n],labels3[0:n]):
         plt.text(0,t,data[0:n],fontsize=5, color=cnames[5])
     elif cl == 6:     
         plt.text(0,t,data[0:n],fontsize=4, color=cnames[6])
-    t = t + 1        
-plt.show()
+    t = t+1
 fig.savefig("clustergene.png")
+plt.show()
 """
+    for z in range(0,I):
+        if cl == z :
+            plt.text(0,t,data[0:n],fontsize=(3+z), color=cnames[z])
 
 1) Find the correct cluster for informational genetic material, where the correct
 triplet distribution (probably) will contain the lowest frequency of the stop
@@ -240,22 +233,13 @@ in a gene because it terminates its transcription.
 """
 collist = ['taa','tag','tga']
 SCC = np.array(Y3[collist].sum(axis=1))
-SCC0 = [(d) for d,cl in zip(SCC,labels3) if cl == 0]
-SCC1 = [(d) for d,cl in zip(SCC,labels3) if cl == 1]
-SCC2 = [(d) for d,cl in zip(SCC,labels3) if cl == 2]
-SCC3 = [(d) for d,cl in zip(SCC,labels3) if cl == 3]
-SCC4 = [(d) for d,cl in zip(SCC,labels3) if cl == 4]
-SCC5 = [(d) for d,cl in zip(SCC,labels3) if cl == 5]
-SCC6 = [(d) for d,cl in zip(SCC,labels3) if cl == 6]
-SCC0s = np.sum(SCC0)
-SCC1s = np.sum(SCC1)
-SCC2s = np.sum(SCC2)
-SCC3s = np.sum(SCC3)
-SCC4s = np.sum(SCC4)
-SCC5s = np.sum(SCC5)
-SCC6s = np.sum(SCC6)
-XCC = [i for i in range(0,n_cl)]
-SCCx = [SCC0s, SCC1s, SCC2s, SCC3s, SCC4s, SCC5s, SCC6s]
+#for k in range(0,6):
+ #   SCC[k] = [(d) for d,cl in zip(SCC,labels3) if cl == k]
+
+for i in range(0,I):
+    globals()['SSC'+str(i)] = [d for d,cl in zip(SCC,labels3) if cl == i] 
+XCC = [i for i in range(0,I)]
+SCCx = [np.sum(globals()['SSC'+str(i)]) for i in range(0,I)]
 fig = plt.figure(5)
 plt.bar(XCC, SCCx, color=cnames)
 plt.ylabel('Score fo stop codons (taa,tga,tag)')
@@ -263,30 +247,6 @@ plt.xlabel('Clusters(labels)')
 plt.title('Correct Cluster Shift \n lowest frequency of stop codons')
 fig.savefig("clustercorrect.png")   
 """
-SCC0x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 0]
-SCC1x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 1]
-SCC2x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 2]
-SCC3x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 3]
-SCC4x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 4]
-SCC5x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 5]
-SCC6x = [(d) for d,cl in zip(SCC,y_kmeans3) if cl == 6]
-SCC0sx = np.sum(SCC0x)
-SCC1sx = np.sum(SCC1x)
-SCC2sx = np.sum(SCC2x)
-SCC3sx = np.sum(SCC3x)
-SCC4sx = np.sum(SCC4x)
-SCC5sx = np.sum(SCC5x)
-SCC6sx = np.sum(SCC6x)
-XCC = [i for i in range(0,n_cl)]
-SCCxx = [SCC0sx, SCC1sx, SCC2sx, SCC3sx, SCC4sx, SCC5sx, SCC6sx]
-fig = plt.figure(6)
-plt.bar(XCC, SCCxx, color=cnames)
-plt.ylabel('Score fo stop codons (taa,tga,tag)')
-plt.xlabel('Clusters(prediction)')
-plt.title('Correct Cluster Shift \n lowest frequency of stop codons')
-fig.savefig("clustercorrect1.png")   
-plt.show()
-
 2) Measure information content for every phase
 We can calculate the information value of this triplet
 distribution I(F) for each afragment F . Is the information of fragments in
@@ -299,7 +259,6 @@ clusters?
 I = sum([f(ijk) * ln(f(ijk)) / p(i).p(j).p(k))])
 fijk is the frequency of triplet ijk.
 pi is a frequency of letter i
-
 """
 Y1 = np.array(Y1)
 p_i = Y1.sum(axis=1)
@@ -331,19 +290,14 @@ r5 = r4/r2
 r6 = r4*np.log(r5)
 r6.fillna(0,inplace=True)
 IR = np.sum(r6,axis=1)
-IR0 = [i for i,cl in zip(IR,labels3) if cl == 0] 
-IR1 = [i for i,cl in zip(IR,labels3) if cl == 1]
-IR2 = [i for i,cl in zip(IR,labels3) if cl == 2]
-IR3 = [i for i,cl in zip(IR,labels3) if cl == 3]
-IR4 = [i for i,cl in zip(IR,labels3) if cl == 4]
-IR5 = [i for i,cl in zip(IR,labels3) if cl == 5]
-IR6 = [i for i,cl in zip(IR,labels3) if cl == 6]
-
-IRm = [np.mean(IR0),np.mean(IR1),np.mean(IR2),np.mean(IR3),np.mean(IR4),np.mean(IR5),np.mean(IR6)]
-IRl = [len(IR0),len(IR1),len(IR2),len(IR3),len(IR4),len(IR5),len(IR6)]
-IRv = [np.var(IR0),np.var(IR1),np.var(IR2),np.var(IR3),np.var(IR4),np.var(IR5),np.var(IR6)]
-IRs = [np.std(IR0),np.std(IR1),np.std(IR2),np.std(IR3),np.std(IR4),np.std(IR5),np.std(IR6)]
-
+#for k in range(0,6):
+ #   IR[k] = [i for i,cl in zip(IR,labels3) if cl == k]
+for t in range(0,I):
+    globals()['IR'+str(t)] = [i for i,cl in zip(IR,labels3) if cl == t] 
+IRm = [np.mean(globals()['IR'+str(i)]) for i in range(0,I)]
+IRl = [len(globals()['IR'+str(i)]) for i in range(0,I)]
+IRv = [np.var(globals()['IR'+str(i)]) for i in range(0,I)]
+IRs = [np.std(globals()['IR'+str(i)]) for i in range(0,I)]
 fig = plt.figure(7)
 plt.bar(XCC, IRm, color=cnames)
 plt.ylabel('Mean IR of each cluster \n (collection of fragments with same label)')
@@ -355,14 +309,15 @@ plt.show()
 
 # Hypothesis testing for significance of Information Ratio
 # (check variance of 4 first cluster in Info)
+I = I -1
 Info = np.array([IRm,IRl,IRv,IRs])
 Info.sort(axis=1)
-CCCu = np.mean(Info[0,0:4])
+CCCu = np.mean(Info[0,0:(I-2)])
 CCC = max(IRm)
 # Calculate degress of freedom v
-v = ((Info[2,6]/Info[1,6]+np.mean(Info[2,0:4])/np.mean(Info[1,0:4]))**2)/((Info[2,6]/Info[1,6])**2/(Info[1,6]+1)+(np.mean(Info[2,0:4])/np.mean(Info[1,0:4]))**2/(np.mean(Info[1,0:4])+1))-2
+v = ((Info[2,I]/Info[1,I]+np.mean(Info[2,0:(I-2)])/np.mean(Info[1,0:(I-2)]))**2)/((Info[2,I]/Info[1,I])**2/(Info[1,I]+1)+(np.mean(Info[2,0:(I-2)])/np.mean(Info[1,0:(I-2)]))**2/(np.mean(Info[1,0:(I-2)])+1))-2
 #print(v, "degress of freedom")
-dif_stdev = (Info[2,6]/Info[1,6]+np.mean(Info[2,0:4])/np.mean(Info[1,0:4]))**0.5
+dif_stdev = (Info[2,I]/Info[1,I]+np.mean(Info[2,0:(I-2)])/np.mean(Info[1,0:(I-2)]))**0.5
 print("Dif St.Dev",dif_stdev)
 t = np.abs(CCC - CCCu)/dif_stdev
 ## Compare with the critical t-value
@@ -373,14 +328,4 @@ p = 1 - stats.t.cdf(t,df=df)
 print("t = " + str(t))
 print("p = " + str(2*p))
 print("We can reject the hypothesis that the Information Ratio \n of the correct cluster and the average IR of the other clusters \n are equal at ",round(100*(1-2*p),2)-0.1,"% significance level",'\n') 
-#Note that we multiply the p value by 2 because its a two tail t-test
-### You can see that after comparing the t statistic with the critical t value (computed internally) we get a good p value of 0.0005 and thus we reject the null hypothesis and thus it proves that the mean of the two distributions are different and statistically significant.
-    
-#3) Increase resolution of determining gene positions.
-
-
-
-#4) Precise start and end positions of genes: almost
-#all genes start with “ATG” start codon and end with “TAG”, “TAA” or
-#“TGA” stop codons. Try to use this information to find the beginning and
-#end of every gene.    
+#Note that we multiply the p value by 2 because its a two tail t-test   
